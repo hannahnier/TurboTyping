@@ -2,7 +2,7 @@ import chalk from "chalk";
 import { col } from "./colors.js";
 import chalkAnimation from "chalk-animation";
 
-// all "\" are presented as "\\" so that they are deployed correctly
+// all "\" are presented as "\\" so that they are parsed correctly
 export const introTemplate = `
 0===================================================0
 0                                                   0
@@ -44,63 +44,26 @@ export const outroTemplate = `
 0===================================================0
 `;
 
-// export const introTemplate2 = `
-// 0===================================================0
-// 0                                                   0
-// 0          __                                       0
-// 0         (_ ._  _  _  _|   _|_  ._ o._  _          0
-// 0         __)|_)(/_(/_(_|    |_\/|_)|| |(_|         0
-// 0            |                 / |       _|         0
-// 0                                                   0
-// 0===================================================0
-// `;
-
-export const mainMenuTemplate = `_____________________________________________
-|                                           |
-|            \u23F1  ${col.y} Speedy Typing${col.res}  \u23F1           |
-|___________________________________________|
-|                                           |
-| ${col.r}[N] New Game${col.res}                              |
-| ${col.m}[H] Highscore${col.res}                             |
-| ${col.b}[Q] Quit${col.res}                                  |
-|___________________________________________|
-|                                           |
-| Insert the letter of your choice and      |
-| press 'Enter'!                            |
-|___________________________________________|
+export const mainMenuTemplate =
+  chalk.bold(`_____________________________________________________
+|                                                   |
+|                                                   |
+|                \u23F1  ${col.y} Speedy Typing${col.res}  \u23F1               |
+|                                                   |
+|                                                   |
+|                                                   |
+|             \t   ${col.r}[${col.w} N ${col.r}] New Game${col.res}  \t            |
+|                                                   |
+|             \t   ${col.m}[${col.w} H ${col.m}] Highscore${col.res} \t            |
+|                                                   |
+|             \t   ${col.b}[${col.w} Q ${col.b}] Quit${col.res}\t\t            |
+|                                                   |
+|                                                   |
+|___________________________________________________|`) +
+  `
+|                                                   |
+|     Insert the letter of your choice and press    |
+|                     'Enter'!                      |
+|___________________________________________________|
 
 `;
-
-// export const highscoreTemplate = `
-// _____________________________________________
-// |                                           |
-// |           * * *  Highscore  * * *         |
-// |___________________________________________|
-// |                                           |
-// | ${fetchHighscore()[0]}                              |
-// | [H] Highscore                             |
-// | [Q] Quit                                  |
-// |___________________________________________|
-// |                                           |
-// | Insert the letter of your choice and      |
-// | press 'Enter'!                            |
-// |___________________________________________|
-
-// `;
-
-const returnTemplate = `
-0================___Return___====================0
-0                                                   0
-0                                                   0
-0
-0       [${col.y}R${col.res}]eturn to Main Menu - [${col.r}Q${col.res}]uit           0
-0                                                   0
-0===================================================0
-`;
-
-// module.exports = {
-//   introTemplate: introTemplate,
-//   mainMenuTemplate: mainMenuTemplate,
-//   highscoreTemplate: highscoreTemplate,
-//   returnTemplate: returnTemplate,
-// };

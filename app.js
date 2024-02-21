@@ -2,6 +2,9 @@ import * as readline from "node:readline/promises";
 import { createInterface } from "readline";
 import readlineSync from "readline-sync";
 
+//  to do: gradient string package einfügen
+// evtl. noch die Option kürzere Texte auszuwählen
+
 import {
   mainMenuTemplate,
   introTemplate,
@@ -11,23 +14,25 @@ import chalk from "chalk";
 import chalkAnimation from "chalk-animation";
 import { col } from "./data/colors.js";
 
-// const rl = readline.createInterface({
-//   input: process.stdin,
-//   output: process.stdout,
-// });
-
 export let scores = [
   { name: "Honza", wpm: 30 },
-  { name: "Monica", wpm: 50 },
-  { name: "guest123", wpm: 100 },
+  { name: "Monica", wpm: 20 },
+  { name: "guest123", wpm: 10 },
 ];
+
+let playerFirst;
+let playerSecond;
+let playerThird;
+let champions;
+let playerNew = {};
+let textSample = "";
 
 function fetchHighscore() {
   let highscore = [...scores];
   highscore.sort((player1, player2) => {
     return player2.wpm - player1.wpm;
   });
-  let champions = highscore.slice(0, 3);
+  champions = highscore.slice(0, 3);
   let highscoreLog = champions.map(
     (player, index) =>
       `${index + 1}.\t${player.name}:  ${player.wpm} words per minute`
@@ -35,26 +40,31 @@ function fetchHighscore() {
   return highscoreLog;
 }
 
-const highscoreTemplate = `_____________________________________________
+function fetchHighscoreTemplate() {
+  return `_____________________________________________
 |                                           |
 |             \u2726\u2726\u2726  Highscore  \u2726\u2726\u2726           |
 |___________________________________________|
 |                                           |
 |                                           |
-|  ${fetchHighscore()[0]}\t    |          
-|  ${fetchHighscore()[1]}\t    |       
-|  ${fetchHighscore()[2]}\t    |                
+|  ${playerFirst}\t    |          
+|  ${playerSecond}\t    |       
+|  ${playerThird}\t    |                
 |                                           |             
-|___________________________________________|
-  `;
+|___________________________________________|`;
+}
 
 function displayHighscore() {
+  playerFirst = fetchHighscore()[0];
+  playerSecond = fetchHighscore()[1];
+  playerThird = fetchHighscore()[2];
+  let highscoreTemplate = fetchHighscoreTemplate();
   chalkAnimation.rainbow(highscoreTemplate, 0.5);
 }
 
 function goBackToMenu() {
   if (
-    readlineSync.keyIn("\n\nPress any key to return to Menu (except 'Enter').")
+    readlineSync.keyIn("\nPress any key to return to Menu (except 'Enter').")
   ) {
     console.clear();
     startProgramm();
@@ -88,92 +98,94 @@ class Game {
 
     let nameInput = readlineSync.question("Enter your name: ");
     let playerName = nameInput ? nameInput : "Guest";
-    let playerNew = new Player(playerName, 0);
-    scores.push(playerNew);
-    console.log(playerNew);
+    playerNew = new Player(playerName, 0);
 
     // später einkommentieren:
     // let textSample = this.fetchRandomText();
 
-    let textSample = "Dies";
-    let startTimestamp = new Date();
+    textSample = "Dies";
 
     console.clear();
     console.log(col.b, `\n${textSample}\n`, col.res);
+    console.log(
+      col.y,
+      `How it works: Type the text above without any mistakes and as fast as you can. Once you are done with the typing, make sure to stop the clock by hitting 'Enter'. 
+    `,
+      col.res
+    );
 
-    // readline neu (als asynchrone Funktion, damit der Rest im Format ESM bleiben kann, für imports & Co)
-
-    async function typingTest() {
-      try {
-        const readline = await import("readline");
-        const rl = readline.createInterface({
-          input: process.stdin,
-          output: process.stdout,
-        });
-
-        rl.question(
-          "Type the text above and make sure to directly correct any mistakes you make. Once you have finished typing, press 'Enter'. Time is running! \n",
-          async (input) => {
-            let endTimestamp = new Date();
-
-            if (input !== textSample) {
-              console.clear();
-              console.log("Your text was not fully correct. Game over.");
-              goBackToMenu();
-            } else {
-              console.clear();
-              let totalTime = (endTimestamp - startTimestamp) / 60000; // duration in minutes
-              let words = textSample.split(" "); // number of words
-              let wordsPerMinute = Math.round(words.length / totalTime);
-              // hier noch eine Meldung einbauen, wenn der aktuelle highscore geknackt wurde
-              console.log(
-                `Congratulations! Your average typing speed is: ${wordsPerMinute} words per minute\n\nHighscore:\n`
-              );
-              playerNew.wpm = wordsPerMinute;
-              displayHighscore();
-              setTimeout(() => {
-                goBackToMenu();
-              }, 2000);
-            }
-
-            rl.close();
-          }
-        );
-      } catch (error) {
-        console.log("An error occured.");
-        goBackToMenu();
-      }
+    if (
+      readlineSync.keyIn(
+        "Ready? Press any key (other than 'Enter') to start the clock! After that, you can start typing."
+      )
+    ) {
+      this.typingTest();
     }
 
-    typingTest();
+    // readline neu (als asynchrone Funktion, damit der Rest im Format ESM bleiben kann, für imports & Co)
+  }
 
-    // // old:
-    // rl.question(
-    //   "Type the text above and make sure to directly correct any mistakes you make. Once you have finished typing, press 'Enter'. Time is running! \n",
-    //   function (input) {
-    //     let endTimestamp = new Date();
+  async typingTest() {
+    try {
+      let startTimestamp = new Date();
+      const readline = await import("readline");
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+      });
 
-    //     if (input !== textSample) {
-    //       console.clear();
-    //       console.log("Your text was not fully correct. Game over.");
-    //     } else {
-    //       console.clear();
-    //       let totalTime = (endTimestamp - startTimestamp) / 60000; // duration in minutes
-    //       let words = textSample.split(" "); // number of words
-    //       let wordsPerMinute = Math.round(words.length / totalTime);
-    //       // hier noch eine Meldung einbauen, wenn der aktuelle highscore geknackt wurde
-    //       console.log(
-    //         `Congratulations, ${playerNew.name}! Your average typing speed is: ${wordsPerMinute} words per minute
+      rl.question("\n\u25B7 ", async (input) => {
+        let endTimestamp = new Date();
 
-    //         Highscore:            `
-    //       );
-    //       playerNew.wpm = wordsPerMinute;
-    //       displayHighscore();
-    //     }
+        if (Math.abs(input.length - textSample.length) > 10) {
+          console.clear();
+          console.log(
+            `\u2755 ${col.r}Your text was way too different from the original and cannot be evaluated. Next time, stick to the text.${col.res} \u2755`
+          );
+          goBackToMenu();
+        } else {
+          console.clear();
+          let totalTime = (endTimestamp - startTimestamp) / 60000; // duration in minutes
+          let words = input.split(" "); // number of words
+          let wordsPerMinute = Math.round(words.length / totalTime);
+          // hier noch eine Meldung einbauen, wenn der aktuelle highscore geknackt wurde
+          console.log(
+            `Done! Your average typing speed is: ${col.m}${wordsPerMinute} words per minute${col.res}.\n`
+          );
+          playerNew.wpm = wordsPerMinute;
+          scores.push(playerNew);
 
-    //     rl.close();
-    //   }
-    // );
+          fetchHighscore();
+          if (champions[0] === playerNew) {
+            console.log(
+              `\u2728\u2728 Congratulations, ${playerNew.name}! You are the new winner! \u2728\u2728`
+            );
+          } else if (champions[1] === playerNew) {
+            console.log(
+              `\u2728 Congratulations, ${playerNew.name}! You made it to second place! \u2728`
+            );
+          } else if (champions[2] === playerNew) {
+            console.log(
+              `\u2728 Congratulations, ${playerNew.name}! You made it to the podium. \u2728`
+            );
+          } else {
+            console.log(
+              `You did not make it to the podium, ${playerNew.name}. Try again!`
+            );
+          }
+
+          displayHighscore();
+          setTimeout(() => {
+            goBackToMenu();
+          }, 2000);
+        }
+
+        rl.close();
+      });
+    } catch (error) {
+      console.log("An error occured.");
+      goBackToMenu();
+    }
   }
 }
 
@@ -202,15 +214,13 @@ function startProgramm() {
       setTimeout(() => {
         goBackToMenu();
       }, 2000);
-
       break;
 
     case "Q":
       console.clear();
-      console.log(col.y, `\nGoodbye for now!\n`, col.res);
+      console.log(col.c, `\nGoodbye for now!`, col.res);
       console.log(outroTemplate, "\n");
       process.exit(0);
-      break;
 
     default:
       console.clear();
@@ -223,21 +233,21 @@ function startProgramm() {
 //////////////// Start the Programm ///////////////////
 
 console.clear();
-// chalkAnimation.karaoke(introTemplate, 1.6);
+chalkAnimation.karaoke(introTemplate, 1.6);
 
-// setTimeout(() => {
-//   console.clear();
-//   console.log(col.y, introTemplate, col.res);
-// }, 2300);
+setTimeout(() => {
+  console.clear();
+  console.log(col.y, introTemplate, col.res);
+}, 2300);
 
-// setTimeout(() => {
-//   console.clear();
-// }, 3400);
+setTimeout(() => {
+  console.clear();
+}, 3400);
 
-// setTimeout(() => {
-//   console.clear();
-//   startProgramm();
-// }, 4000); // after 4 seconds, the menu appears
+setTimeout(() => {
+  console.clear();
+  startProgramm();
+}, 4000); // after 4 seconds, the menu appears
 
 // temporary only:
-startProgramm();
+// startProgramm();
