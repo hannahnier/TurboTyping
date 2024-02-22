@@ -15,9 +15,9 @@ import { col } from "./data/colors.js";
 import gradient from "gradient-string";
 
 export let scores = [
-  { name: "Honza", wpm: 30 },
-  { name: "Monica", wpm: 20 },
-  { name: "guest123", wpm: 10 },
+  { name: "Honza", wpm: 60 },
+  { name: "Monica", wpm: 120 },
+  { name: "guest123", wpm: 20 },
 ];
 
 //////////////////// Declare global variables /////////////////
@@ -88,12 +88,10 @@ function checkHighscore() {
 }
 
 function goBackToMenu() {
-  if (
-    readlineSync.keyIn("\nPress any key to return to Menu (except 'Enter').")
-  ) {
-    console.clear();
-    startProgramm();
-  }
+  console.log(`\n${col.y}[Enter] ${col.res}Return to Menu`);
+  readlineSync.question("", { hideEchoBack: true, mask: "" });
+  console.clear();
+  startProgramm();
 }
 
 class Game {
@@ -101,45 +99,40 @@ class Game {
 
   fetchRandomText() {
     let textArray = [
-      {
-        text1:
-          "Hunt and peck (two-fingered typing), also known as Eagle Finger, is a common form of typing in which the typist presses each key individually. Instead of relying on the memorized position of keys, the typist must find each key by sight. Use of this method may also prevent the typist from being able to see what has been typed without glancing away from the keys. Although good accuracy may be achieved, any typing errors that are made may not be noticed immediately due to the user not looking at the screen. There is also the disadvantage that because fewer fingers are used, those that are used are forced to move a much greater distance.",
-      },
-      {
-        text2:
-          "There are many idiosyncratic typing styles in between novice-style 'hunt and peck' and touch typing. For example, many 'hunt and peck' typists have the keyboard layout memorized and are able to type while focusing their gaze on the screen. Some use just two fingers, while others use 3-6 fingers. Some use their fingers very consistently, with the same finger being used to type the same character every time, while others vary the way they use their fingers.",
-      },
-      {
-        text3:
-          "Words per minute (WPM) is a measure of typing speed, commonly used in recruitment. For the purposes of WPM measurement a word is standardized to five characters or keystrokes. Therefore, 'brown' counts as one word, but 'accounted' counts as two. The benefits of a standardized measurement of input speed are that it enables comparison across language and hardware boundaries. The speed of an Afrikaans-speaking operator in Cape Town can be compared with a French-speaking operator in Paris. (Wikipedia)",
-      },
+      "Hunt and peck (two-fingered typing), also known as Eagle Finger, is a common form of typing in which the typist presses each key individually.",
+      "Instead of relying on the memorized position of keys, the typist must find each key by sight.",
+      "Use of this method may also prevent the typist from being able to see what has been typed without glancing away from the keys.",
+      "Although good accuracy may be achieved, any typing errors that are made may not be noticed immediately due to the user not looking at the screen.",
+      "There are many idiosyncratic typing styles in between novice-style 'hunt and peck' and touch typing.",
+      "Some use just two fingers, while others use 3-6 fingers.",
+      "Words per minute (WPM) is a measure of typing speed, commonly used in recruitment.",
+      "For the purposes of WPM measurement a word is standardized to five characters or keystrokes.",
+      "The benefits of a standardized measurement of input speed are that it enables comparison across language and hardware boundaries.",
     ];
-    let randomIndex = Math.floor(Math.random() * 3);
-    return Object.values(textArray[randomIndex])[0];
+    let randomIndex = Math.floor(Math.random() * textArray.length);
+    return textArray[randomIndex];
   }
 
   startNewGame() {
     console.clear();
-
-    let nameInput = readlineSync.question("Enter your name: ");
+    console.log("Enter your name: \n", col.g);
+    let nameInput = readlineSync.question("");
     let playerName = nameInput ? nameInput : "Guest";
     playerNew = new Player(playerName, 0);
 
-    // später einkommentieren:
-    // let textSample = this.fetchRandomText();
-
-    textSample = "Dies";
+    // textSample = this.fetchRandomText();
+    // später wieder einkommentieren:
+    textSample =
+      "Hunt and peck (two-fingered typing) is also known as Eagle Finger.";
 
     console.clear();
     console.log(`${col.y}[Esc]${col.res} Return to Menu`);
     console.log(col.b, `\n${textSample}\n`, col.res);
     console.log(
-      "Ready to type the above text? Once you start typing, the clock will be ticking! "
+      "Ready to type the above text? Once you start typing, the clock will be ticking!\n"
     );
 
     this.typingTest();
-
-    // readline neu (als asynchrone Funktion, damit der Rest im Format ESM bleiben kann, für imports & Co)
   }
 
   async typingTest() {
@@ -165,9 +158,6 @@ class Game {
 
       // Speichern Sie den aktuellen Text, der mit textSample verglichen wird
       let currentText = "";
-
-      // Der Text, den Sie überprüfen möchten
-      const textSample = "Dies";
 
       // Starten Sie das Vergleichen des eingegebenen Textes mit textSample
       process.stdin.on("keypress", function (letter, key) {
@@ -201,7 +191,7 @@ class Game {
         let outputText = "";
         for (let i = 0; i < currentText.length; i++) {
           if (textSample[i] === currentText[i]) {
-            outputText += currentText[i];
+            outputText += chalk.green(currentText[i]);
           } else {
             outputText += chalk.bgRed(currentText[i]);
           }
@@ -217,8 +207,8 @@ class Game {
           process.stdin.removeAllListeners("keypress");
           console.clear();
           let totalTime = (endTimestamp - startTimestamp) / 60000; // duration in minutes
-          let words = currentText.split(" "); // number of words
-          let wordsPerMinute = Math.round(words.length / totalTime);
+          let words = currentText.length / 5; // number of words is usually approximated by entries divided by five
+          let wordsPerMinute = Math.round(words / totalTime);
           console.log(
             `Done! Your average typing speed is: ${chalk.bgMagentaBright(
               wordsPerMinute
