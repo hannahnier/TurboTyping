@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { col } from "./colors.js";
 import chalkAnimation from "chalk-animation";
+import gradient from "gradient-string";
 
 // all "\" are presented as "\\" so that they are parsed correctly
 export const introTemplate = `
@@ -48,8 +49,8 @@ export const mainMenuTemplate =
   chalk.bold(`_____________________________________________________
 |                                                   |
 |                                                   |
-|                \u23F1  ${col.y} Speedy Typing${col.res}  \u23F1               |
-|                                                   |
+|                    \u23F1  ${col.y} Menu${col.res}  \u23F1                    |
+|                 \u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1                 |
 |                                                   |
 |                                                   |
 |             \t   ${col.r}[${col.w} N ${col.r}] New Game${col.res}  \t            |
@@ -59,7 +60,7 @@ export const mainMenuTemplate =
 |             \t   ${col.b}[${col.w} Q ${col.b}] Quit${col.res}\t\t            |
 |                                                   |
 |                                                   |
-|___________________________________________________|`) +
+|     \u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1    |`) +
   `
 |                                                   |
 |     Insert the letter of your choice and press    |

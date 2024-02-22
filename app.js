@@ -1,9 +1,8 @@
-import * as readline from "node:readline/promises";
+///////////////////// Import & export ///////////////////
+import readline from "readline";
 import { createInterface } from "readline";
 import readlineSync from "readline-sync";
-
-//  to do: gradient string package einfügen
-// evtl. noch die Option kürzere Texte auszuwählen
+import keypress from "keypress";
 
 import {
   mainMenuTemplate,
@@ -13,12 +12,15 @@ import {
 import chalk from "chalk";
 import chalkAnimation from "chalk-animation";
 import { col } from "./data/colors.js";
+import gradient from "gradient-string";
 
 export let scores = [
   { name: "Honza", wpm: 30 },
   { name: "Monica", wpm: 20 },
   { name: "guest123", wpm: 10 },
 ];
+
+//////////////////// Declare global variables /////////////////
 
 let playerFirst;
 let playerSecond;
@@ -48,7 +50,9 @@ function fetchHighscoreTemplate() {
 |                                           |
 |                                           |
 |  ${playerFirst}\t    |          
+|                                           |
 |  ${playerSecond}\t    |       
+|                                           |
 |  ${playerThird}\t    |                
 |                                           |             
 |___________________________________________|`;
@@ -60,6 +64,27 @@ function displayHighscore() {
   playerThird = fetchHighscore()[2];
   let highscoreTemplate = fetchHighscoreTemplate();
   chalkAnimation.rainbow(highscoreTemplate, 0.5);
+}
+
+function checkHighscore() {
+  fetchHighscore();
+  if (champions[0] === playerNew) {
+    console.log(
+      `\u2728\u2728 Congratulations, ${playerNew.name}! You are the new winner! \u2728\u2728`
+    );
+  } else if (champions[1] === playerNew) {
+    console.log(
+      `\u2728 Congratulations, ${playerNew.name}! You made it to second place! \u2728`
+    );
+  } else if (champions[2] === playerNew) {
+    console.log(
+      `\u2728 Congratulations, ${playerNew.name}! You made it to the podium. \u2728`
+    );
+  } else {
+    console.log(
+      `You did not make it to the podium, ${playerNew.name}. Try again!`
+    );
+  }
 }
 
 function goBackToMenu() {
@@ -106,84 +131,119 @@ class Game {
     textSample = "Dies";
 
     console.clear();
+    console.log(`${col.y}[Esc]${col.res} Return to Menu`);
     console.log(col.b, `\n${textSample}\n`, col.res);
     console.log(
-      col.y,
-      `How it works: Type the text above without any mistakes and as fast as you can. Once you are done with the typing, make sure to stop the clock by hitting 'Enter'. 
-    `,
-      col.res
+      "Ready to type the above text? Once you start typing, the clock will be ticking! "
     );
 
-    if (
-      readlineSync.keyIn(
-        "Ready? Press any key (other than 'Enter') to start the clock! After that, you can start typing."
-      )
-    ) {
-      this.typingTest();
-    }
+    this.typingTest();
 
     // readline neu (als asynchrone Funktion, damit der Rest im Format ESM bleiben kann, für imports & Co)
   }
 
   async typingTest() {
     try {
-      let startTimestamp = new Date();
-      const readline = await import("readline");
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
+      let startTimestamp;
 
-      rl.question("\n\u25B7 ", async (input) => {
-        let endTimestamp = new Date();
+      // Starten Sie die Tastatureingabe
+      process.stdin.setRawMode(true);
+      process.stdin.resume();
 
-        if (Math.abs(input.length - textSample.length) > 10) {
+      // Fügen Sie einen Listener für das SIGINT-Ereignis hinzu, wenn noch keiner vorhanden ist
+      if (!process.listenerCount("SIGINT")) {
+        process.on("SIGINT", function () {
+          console.log("\nExiting...");
+          // Stellen Sie die Standardtastatureingabe wieder her
+          process.stdin.setRawMode(false);
+          process.exit();
+        });
+      }
+
+      // Starten Sie die Tastatureingabe
+      keypress(process.stdin);
+
+      // Speichern Sie den aktuellen Text, der mit textSample verglichen wird
+      let currentText = "";
+
+      // Der Text, den Sie überprüfen möchten
+      const textSample = "Dies";
+
+      // Starten Sie das Vergleichen des eingegebenen Textes mit textSample
+      process.stdin.on("keypress", function (letter, key) {
+        if (!startTimestamp) {
+          // Setzen Sie den Startzeitstempel, wenn der erste Buchstabe eingegeben wird
+          startTimestamp = new Date();
+        }
+        if (key && key.name === "backspace") {
+          // Wenn Backspace gedrückt wird, löschen Sie den letzten Buchstaben
+          currentText = currentText.slice(0, -1);
+        } else if (key && key.name === "escape") {
+          // Überprüfen, ob die Escape-Taste gedrückt wurde
+          process.stdin.pause();
+          process.stdin.removeAllListeners("keypress");
           console.clear();
-          console.log(
-            `\u2755 ${col.r}Your text was way too different from the original and cannot be evaluated. Next time, stick to the text.${col.res} \u2755`
-          );
+          console.log("Game was terminated with 'Esc'.");
           goBackToMenu();
+        } else if (key && key.ctrl && key.name === "c") {
+          // Überprüfen, ob "Strg + C" gedrückt wurde
+          process.exit();
         } else {
+          // Fügen Sie den neuen Buchstaben zum aktuellen Text hinzu
+          currentText += letter;
+        }
+
+        // Löschen Sie die letzte Zeile
+        readline.cursorTo(process.stdout, 0);
+        readline.clearLine(process.stdout, 0);
+
+        // Überprüfen, ob der aktuelle Text mit einem Teil des textSample übereinstimmt
+        let outputText = "";
+        for (let i = 0; i < currentText.length; i++) {
+          if (textSample[i] === currentText[i]) {
+            outputText += currentText[i];
+          } else {
+            outputText += chalk.bgRed(currentText[i]);
+          }
+        }
+
+        // Drucken Sie den aktuellen Text, damit der Benutzer ihn sehen kann
+        process.stdout.write(outputText);
+
+        // Überprüfen, ob der aktuelle Text mit textSample übereinstimmt
+        if (currentText === textSample) {
+          let endTimestamp = new Date();
+          process.stdin.pause();
+          process.stdin.removeAllListeners("keypress");
           console.clear();
           let totalTime = (endTimestamp - startTimestamp) / 60000; // duration in minutes
-          let words = input.split(" "); // number of words
+          let words = currentText.split(" "); // number of words
           let wordsPerMinute = Math.round(words.length / totalTime);
-          // hier noch eine Meldung einbauen, wenn der aktuelle highscore geknackt wurde
           console.log(
-            `Done! Your average typing speed is: ${col.m}${wordsPerMinute} words per minute${col.res}.\n`
+            `Done! Your average typing speed is: ${chalk.bgMagentaBright(
+              wordsPerMinute
+            )} words per minute.\n`
           );
+          // Weitere Verarbeitung des Ergebnisses (z.B. Anzeige von Highscore, etc.)
           playerNew.wpm = wordsPerMinute;
           scores.push(playerNew);
 
-          fetchHighscore();
-          if (champions[0] === playerNew) {
-            console.log(
-              `\u2728\u2728 Congratulations, ${playerNew.name}! You are the new winner! \u2728\u2728`
-            );
-          } else if (champions[1] === playerNew) {
-            console.log(
-              `\u2728 Congratulations, ${playerNew.name}! You made it to second place! \u2728`
-            );
-          } else if (champions[2] === playerNew) {
-            console.log(
-              `\u2728 Congratulations, ${playerNew.name}! You made it to the podium. \u2728`
-            );
-          } else {
-            console.log(
-              `You did not make it to the podium, ${playerNew.name}. Try again!`
-            );
-          }
-
+          checkHighscore();
           displayHighscore();
           setTimeout(() => {
             goBackToMenu();
           }, 2000);
         }
+      });
 
-        rl.close();
+      // Beenden Sie das Programm, wenn "Ctrl + C" gedrückt wird
+      process.on("SIGINT", function () {
+        process.exit();
       });
     } catch (error) {
       console.log("An error occured.");
+      process.stdin.pause();
+      process.stdin.removeAllListeners("keypress");
       goBackToMenu();
     }
   }
@@ -218,8 +278,8 @@ function startProgramm() {
 
     case "Q":
       console.clear();
-      console.log(col.c, `\nGoodbye for now!`, col.res);
-      console.log(outroTemplate, "\n");
+      console.log(col.b, `\nGoodbye for now!`, col.res);
+      console.log(gradient("blue", "hotpink")(outroTemplate));
       process.exit(0);
 
     default:
@@ -233,21 +293,21 @@ function startProgramm() {
 //////////////// Start the Programm ///////////////////
 
 console.clear();
-chalkAnimation.karaoke(introTemplate, 1.6);
+// chalkAnimation.karaoke(introTemplate, 1.6);
 
-setTimeout(() => {
-  console.clear();
-  console.log(col.y, introTemplate, col.res);
-}, 2300);
+// setTimeout(() => {
+//   console.clear();
+//   console.log(gradient("orange", "hotpink")(introTemplate));
+// }, 2300);
 
-setTimeout(() => {
-  console.clear();
-}, 3400);
+// setTimeout(() => {
+//   console.clear();
+// }, 3400);
 
-setTimeout(() => {
-  console.clear();
-  startProgramm();
-}, 4000); // after 4 seconds, the menu appears
+// setTimeout(() => {
+//   console.clear();
+//   startProgramm();
+// }, 4000); // after 4 seconds, the menu appears
 
 // temporary only:
-// startProgramm();
+startProgramm();
