@@ -1,7 +1,5 @@
 import chalk from "chalk";
 import { col } from "./colors.js";
-import chalkAnimation from "chalk-animation";
-import gradient from "gradient-string";
 
 // all "\" are presented as "\\" so that they are parsed correctly
 export const introTemplate = `

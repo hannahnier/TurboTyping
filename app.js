@@ -1,26 +1,28 @@
 ///////////////////// Import & export ///////////////////
+
+// node packages
 import readline from "readline";
-import { createInterface } from "readline";
 import readlineSync from "readline-sync";
 import keypress from "keypress";
+import chalk from "chalk";
+import chalkAnimation from "chalk-animation";
+import gradient from "gradient-string";
 
+// Templates & colors
 import {
   mainMenuTemplate,
   introTemplate,
   outroTemplate,
 } from "./data/templates.js";
-import chalk from "chalk";
-import chalkAnimation from "chalk-animation";
 import { col } from "./data/colors.js";
-import gradient from "gradient-string";
-
-export let scores = [
-  { name: "Honza", wpm: 60 },
-  { name: "Monica", wpm: 120 },
-  { name: "guest123", wpm: 20 },
-];
 
 //////////////////// Declare global variables /////////////////
+
+let scores = [
+  { name: "Honza", wpm: 60 },
+  { name: "Monica", wpm: 90 },
+  { name: "guest123", wpm: 20 },
+];
 
 let playerFirst;
 let playerSecond;
@@ -28,6 +30,8 @@ let playerThird;
 let champions;
 let playerNew = {};
 let textSample = "";
+
+//////////////////// Functions for highscore (global) /////////////////
 
 function fetchHighscore() {
   let highscore = [...scores];
@@ -42,8 +46,34 @@ function fetchHighscore() {
   return highscoreLog;
 }
 
+function mark(i) {
+  let highscoreLog = fetchHighscore();
+  if (champions[i] === playerNew) {
+    return chalk.bgMagenta(highscoreLog[i]);
+  } else return highscoreLog[i];
+}
+
 function fetchHighscoreTemplate() {
-  return `_____________________________________________
+  return `
+_____________________________________________
+|                                           |
+|             \u2726\u2726\u2726  Highscore  \u2726\u2726\u2726           |
+|___________________________________________|
+|                                           |
+|                                           |
+|  ${mark(0)}\t    |          
+|                                           |
+|  ${mark(1)}\t    |       
+|                                           |
+|  ${mark(2)}\t    |                
+|                                           |             
+|___________________________________________|
+`;
+}
+
+function basicHighscoreTemplate() {
+  return `
+_____________________________________________
 |                                           |
 |             \u2726\u2726\u2726  Highscore  \u2726\u2726\u2726           |
 |___________________________________________|
@@ -55,7 +85,8 @@ function fetchHighscoreTemplate() {
 |                                           |
 |  ${playerThird}\t    |                
 |                                           |             
-|___________________________________________|`;
+|___________________________________________|
+`;
 }
 
 function displayHighscore() {
@@ -63,7 +94,7 @@ function displayHighscore() {
   playerSecond = fetchHighscore()[1];
   playerThird = fetchHighscore()[2];
   let highscoreTemplate = fetchHighscoreTemplate();
-  chalkAnimation.rainbow(highscoreTemplate, 0.5);
+  console.log(col.c, highscoreTemplate, col.res);
 }
 
 function checkHighscore() {
@@ -87,12 +118,55 @@ function checkHighscore() {
   }
 }
 
+//////////////////// Global functions /////////////////
+
+// function startProgramm
+
+function startProgramm() {
+  const mainMenu = readlineSync.question(mainMenuTemplate);
+
+  switch (mainMenu.toUpperCase()) {
+    case "N":
+      console.clear();
+      let game1 = new Game();
+      game1.startNewGame();
+      break;
+
+    case "H":
+      console.clear();
+      playerFirst = fetchHighscore()[0];
+      playerSecond = fetchHighscore()[1];
+      playerThird = fetchHighscore()[2];
+      chalkAnimation.rainbow(basicHighscoreTemplate());
+      setTimeout(() => {
+        goBackToMenu();
+      }, 2200);
+      break;
+
+    case "Q":
+      console.clear();
+      console.log(col.b, `\nGoodbye for now!`, col.res);
+      console.log(gradient("blue", "hotpink")(outroTemplate));
+      process.exit(0);
+
+    default:
+      console.clear();
+      console.log("Invalid input. Choose another key.");
+      startProgramm();
+      break;
+  }
+}
+
 function goBackToMenu() {
   console.log(`\n${col.y}[Enter] ${col.res}Return to Menu`);
   readlineSync.question("", { hideEchoBack: true, mask: "" });
   console.clear();
   startProgramm();
 }
+
+//////////////////// Classes (Game, Player) /////////////////
+
+// class Game
 
 class Game {
   constructor() {}
@@ -120,10 +194,10 @@ class Game {
     let playerName = nameInput ? nameInput : "Guest";
     playerNew = new Player(playerName, 0);
 
-    // textSample = this.fetchRandomText();
     // später wieder einkommentieren:
-    textSample =
-      "Hunt and peck (two-fingered typing) is also known as Eagle Finger.";
+    // textSample = "Some very short example text";
+    // textSample = this.fetchRandomText();
+    textSample = "hallo";
 
     console.clear();
     console.log(`${col.y}[Esc]${col.res} Return to Menu`);
@@ -210,19 +284,16 @@ class Game {
           let words = currentText.length / 5; // number of words is usually approximated by entries divided by five
           let wordsPerMinute = Math.round(words / totalTime);
           console.log(
-            `Done! Your average typing speed is: ${chalk.bgMagentaBright(
+            `Done! Your average typing speed is: ${chalk.bgMagenta(
               wordsPerMinute
             )} words per minute.\n`
           );
           // Weitere Verarbeitung des Ergebnisses (z.B. Anzeige von Highscore, etc.)
           playerNew.wpm = wordsPerMinute;
           scores.push(playerNew);
-
           checkHighscore();
           displayHighscore();
-          setTimeout(() => {
-            goBackToMenu();
-          }, 2000);
+          goBackToMenu();
         }
       });
 
@@ -239,6 +310,8 @@ class Game {
   }
 }
 
+// class Player
+
 class Player {
   constructor(name, wpm) {
     this.name = name;
@@ -246,58 +319,24 @@ class Player {
   }
 }
 
-// function startProgramm
-
-function startProgramm() {
-  const mainMenu = readlineSync.question(mainMenuTemplate);
-
-  switch (mainMenu.toUpperCase()) {
-    case "N":
-      console.clear();
-      let game1 = new Game();
-      game1.startNewGame();
-      break;
-
-    case "H":
-      console.clear();
-      displayHighscore();
-      setTimeout(() => {
-        goBackToMenu();
-      }, 2000);
-      break;
-
-    case "Q":
-      console.clear();
-      console.log(col.b, `\nGoodbye for now!`, col.res);
-      console.log(gradient("blue", "hotpink")(outroTemplate));
-      process.exit(0);
-
-    default:
-      console.clear();
-      console.log("Invalid input. Choose another key.");
-      startProgramm();
-      break;
-  }
-}
-
-//////////////// Start the Programm ///////////////////
+//////////////// Run the Programm ///////////////////
 
 console.clear();
-// chalkAnimation.karaoke(introTemplate, 1.6);
+chalkAnimation.karaoke(introTemplate, 1.6);
 
-// setTimeout(() => {
-//   console.clear();
-//   console.log(gradient("orange", "hotpink")(introTemplate));
-// }, 2300);
+setTimeout(() => {
+  console.clear();
+  console.log(gradient("orange", "hotpink")(introTemplate));
+}, 2300);
 
-// setTimeout(() => {
-//   console.clear();
-// }, 3400);
+setTimeout(() => {
+  console.clear();
+}, 3400);
 
-// setTimeout(() => {
-//   console.clear();
-//   startProgramm();
-// }, 4000); // after 4 seconds, the menu appears
+setTimeout(() => {
+  console.clear();
+  startProgramm();
+}, 4000); // after 4 seconds, the menu appears
 
 // temporary only:
-startProgramm();
+// startProgramm();
