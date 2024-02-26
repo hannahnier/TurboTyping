@@ -19,9 +19,9 @@ import { col } from "./data/colors.js";
 //////////////////// Declare global variables /////////////////
 
 let scores = [
-  { name: "Honza", wpm: 60 },
-  { name: "Monica", wpm: 90 },
-  { name: "guest123", wpm: 20 },
+  { name: "Dummy1", wpm: 90 },
+  { name: "Dummy2", wpm: 50 },
+  { name: "Dummy3", wpm: 30 },
 ];
 
 let playerFirst;
@@ -49,7 +49,7 @@ function fetchHighscore() {
 function mark(i) {
   let highscoreLog = fetchHighscore();
   if (champions[i] === playerNew) {
-    return chalk.bgMagenta(highscoreLog[i]);
+    return chalk.bgGreenBright(highscoreLog[i]);
   } else return highscoreLog[i];
 }
 
@@ -94,26 +94,34 @@ function displayHighscore() {
   playerSecond = fetchHighscore()[1];
   playerThird = fetchHighscore()[2];
   let highscoreTemplate = fetchHighscoreTemplate();
-  console.log(col.c, highscoreTemplate, col.res);
+  console.log(highscoreTemplate);
 }
 
 function checkHighscore() {
   fetchHighscore();
   if (champions[0] === playerNew) {
     console.log(
-      `\u2728\u2728 Congratulations, ${playerNew.name}! You are the new winner! \u2728\u2728`
+      col.b,
+      `\u2728\u2728 Congratulations, ${playerNew.name}! You are the new winner! \u2728\u2728`,
+      col.res
     );
   } else if (champions[1] === playerNew) {
     console.log(
-      `\u2728 Congratulations, ${playerNew.name}! You made it to second place! \u2728`
+      col.b,
+      `\u2728 Congratulations, ${playerNew.name}! You made it to second place! \u2728`,
+      col.res
     );
   } else if (champions[2] === playerNew) {
     console.log(
-      `\u2728 Congratulations, ${playerNew.name}! You made it to the podium. \u2728`
+      col.b,
+      `\u2728 Congratulations, ${playerNew.name}! You made it to the podium. \u2728`,
+      col.res
     );
   } else {
     console.log(
-      `You did not make it to the podium, ${playerNew.name}. Try again!`
+      col.b,
+      `You did not make it to the podium, ${playerNew.name}. Try again!`,
+      col.res
     );
   }
 }
@@ -176,13 +184,11 @@ class Game {
       "Hunt and peck (two-fingered typing), also known as Eagle Finger, is a common form of typing in which the typist presses each key individually.",
       "Instead of relying on the memorized position of keys, the typist must find each key by sight.",
       "Use of this method may also prevent the typist from being able to see what has been typed without glancing away from the keys.",
-      "Although good accuracy may be achieved, any typing errors that are made may not be noticed immediately due to the user not looking at the screen.",
       "There are many idiosyncratic typing styles in between novice-style 'hunt and peck' and touch typing.",
-      "Some use just two fingers, while others use 3-6 fingers.",
       "Words per minute (WPM) is a measure of typing speed, commonly used in recruitment.",
       "For the purposes of WPM measurement a word is standardized to five characters or keystrokes.",
       "The benefits of a standardized measurement of input speed are that it enables comparison across language and hardware boundaries.",
-    ];
+    ]; // source of all text snippets: wikipedia.org
     let randomIndex = Math.floor(Math.random() * textArray.length);
     return textArray[randomIndex];
   }
@@ -194,10 +200,10 @@ class Game {
     let playerName = nameInput ? nameInput : "Guest";
     playerNew = new Player(playerName, 0);
 
-    // später wieder einkommentieren:
-    // textSample = "Some very short example text";
+    // replace this text later with the real textSample:
+    textSample = "Some very short example text";
     // textSample = this.fetchRandomText();
-    textSample = "hallo";
+    // remark: code works only for one-liners so far. could be extended two multiple-line text snippets though (comparing textSample.length to process.stdout.columns)
 
     console.clear();
     console.log(`${col.y}[Esc]${col.res} Return to Menu`);
@@ -209,104 +215,87 @@ class Game {
     this.typingTest();
   }
 
-  async typingTest() {
-    try {
-      let startTimestamp;
+  typingTest() {
+    let startTimestamp;
 
-      // Starten Sie die Tastatureingabe
-      process.stdin.setRawMode(true);
-      process.stdin.resume();
+    // start entry via keyboard:
+    // set RawMode: do not wait for "return" key to be pressed (listen to each keyboard entry even without return)
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    keypress(process.stdin);
 
-      // Fügen Sie einen Listener für das SIGINT-Ereignis hinzu, wenn noch keiner vorhanden ist
-      if (!process.listenerCount("SIGINT")) {
-        process.on("SIGINT", function () {
-          console.log("\nExiting...");
-          // Stellen Sie die Standardtastatureingabe wieder her
-          process.stdin.setRawMode(false);
-          process.exit();
-        });
+    let currentText = ""; // currentText (what has been typed so far)
+
+    // repeat the following after every new key that is pressed:
+    process.stdin.on("keypress", function (letter, key) {
+      // when startTimestamp has not yet been set: set startTimestamp
+      if (!startTimestamp) {
+        startTimestamp = new Date();
       }
 
-      // Starten Sie die Tastatureingabe
-      keypress(process.stdin);
+      // delete the last letter, when backspace is pressed:
+      if (key && key.name === "backspace") {
+        currentText = currentText.slice(0, -1);
 
-      // Speichern Sie den aktuellen Text, der mit textSample verglichen wird
-      let currentText = "";
+        // terminate game and go back to menu, when escape is pressed:
+      } else if (key && key.name === "escape") {
+        process.stdin.pause();
+        process.stdin.removeAllListeners("keypress");
+        console.clear();
+        console.log("Game was terminated with 'Esc'.");
+        goBackToMenu();
 
-      // Starten Sie das Vergleichen des eingegebenen Textes mit textSample
-      process.stdin.on("keypress", function (letter, key) {
-        if (!startTimestamp) {
-          // Setzen Sie den Startzeitstempel, wenn der erste Buchstabe eingegeben wird
-          startTimestamp = new Date();
-        }
-        if (key && key.name === "backspace") {
-          // Wenn Backspace gedrückt wird, löschen Sie den letzten Buchstaben
-          currentText = currentText.slice(0, -1);
-        } else if (key && key.name === "escape") {
-          // Überprüfen, ob die Escape-Taste gedrückt wurde
-          process.stdin.pause();
-          process.stdin.removeAllListeners("keypress");
-          console.clear();
-          console.log("Game was terminated with 'Esc'.");
-          goBackToMenu();
-        } else if (key && key.ctrl && key.name === "c") {
-          // Überprüfen, ob "Strg + C" gedrückt wurde
-          process.exit();
+        // add the new letter to the current text:
+      } else {
+        currentText += letter;
+      }
+
+      // delete the lastly typed line and set back the cursor (so that everything can be on the same line)
+      readline.cursorTo(process.stdout, 0);
+      readline.clearLine(process.stdout, 0);
+
+      // compare currentText and the beginning of textSample; prepare all correct letters in green, all false letters with red background:
+      let outputText = "";
+      for (let i = 0; i < currentText.length; i++) {
+        if (textSample[i] === currentText[i]) {
+          outputText += chalk.green(currentText[i]);
         } else {
-          // Fügen Sie den neuen Buchstaben zum aktuellen Text hinzu
-          currentText += letter;
+          outputText += chalk.bgRed(currentText[i]);
         }
+      }
 
-        // Löschen Sie die letzte Zeile
-        readline.cursorTo(process.stdout, 0);
-        readline.clearLine(process.stdout, 0);
+      // prints the currentText (but without returns and other formatting that console.log uses)
+      process.stdout.write(outputText);
 
-        // Überprüfen, ob der aktuelle Text mit einem Teil des textSample übereinstimmt
-        let outputText = "";
-        for (let i = 0; i < currentText.length; i++) {
-          if (textSample[i] === currentText[i]) {
-            outputText += chalk.green(currentText[i]);
-          } else {
-            outputText += chalk.bgRed(currentText[i]);
-          }
-        }
+      // check if all of textSample has been typed yet --> if so: set endTimestamp, end all processes
+      if (currentText === textSample) {
+        let endTimestamp = new Date();
 
-        // Drucken Sie den aktuellen Text, damit der Benutzer ihn sehen kann
-        process.stdout.write(outputText);
+        // end the typing/listening process:
+        process.stdin.pause();
+        process.stdin.removeAllListeners("keypress");
 
-        // Überprüfen, ob der aktuelle Text mit textSample übereinstimmt
-        if (currentText === textSample) {
-          let endTimestamp = new Date();
-          process.stdin.pause();
-          process.stdin.removeAllListeners("keypress");
-          console.clear();
-          let totalTime = (endTimestamp - startTimestamp) / 60000; // duration in minutes
-          let words = currentText.length / 5; // number of words is usually approximated by entries divided by five
-          let wordsPerMinute = Math.round(words / totalTime);
-          console.log(
-            `Done! Your average typing speed is: ${chalk.bgMagenta(
-              wordsPerMinute
-            )} words per minute.\n`
-          );
-          // Weitere Verarbeitung des Ergebnisses (z.B. Anzeige von Highscore, etc.)
-          playerNew.wpm = wordsPerMinute;
-          scores.push(playerNew);
-          checkHighscore();
-          displayHighscore();
-          goBackToMenu();
-        }
-      });
+        // calculate the total time, number of words and speed (in wmp):
+        let totalTime = (endTimestamp - startTimestamp) / 60000; // duration in minutes
+        let words = currentText.length / 5; // number of words is usually approximated by entries divided by five
+        let wordsPerMinute = Math.round(words / totalTime);
 
-      // Beenden Sie das Programm, wenn "Ctrl + C" gedrückt wird
-      process.on("SIGINT", function () {
-        process.exit();
-      });
-    } catch (error) {
-      console.log("An error occured.");
-      process.stdin.pause();
-      process.stdin.removeAllListeners("keypress");
-      goBackToMenu();
-    }
+        // print the speed to the console:
+        console.clear();
+        console.log(
+          `\nDone! Your average typing speed is: ${chalk.bgMagenta(
+            wordsPerMinute
+          )} words per minute.\n`
+        );
+
+        // set the players score, display highscore and menu-return-instruction:
+        playerNew.wpm = wordsPerMinute;
+        scores.push(playerNew);
+        checkHighscore();
+        displayHighscore();
+        goBackToMenu();
+      }
+    });
   }
 }
 
@@ -322,21 +311,17 @@ class Player {
 //////////////// Run the Programm ///////////////////
 
 console.clear();
-chalkAnimation.karaoke(introTemplate, 1.6);
+chalkAnimation.karaoke(introTemplate, 1);
 
 setTimeout(() => {
   console.clear();
   console.log(gradient("orange", "hotpink")(introTemplate));
-}, 2300);
-
-setTimeout(() => {
-  console.clear();
-}, 3400);
+}, 2900);
 
 setTimeout(() => {
   console.clear();
   startProgramm();
-}, 4000); // after 4 seconds, the menu appears
+}, 4600); // after 4 seconds, the menu appears
 
-// temporary only:
+// for debugging use only:
 // startProgramm();

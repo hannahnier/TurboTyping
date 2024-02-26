@@ -8,8 +8,6 @@ Welcome to **Turbo Typing**, the ultimate typing speed challenge for your termin
 - Real-time feedback on typing accuracy and speed.
 - Highscore leaderboard to track your progress or compete with friends.
 
-![Screenshot](./screenshot_turbotyping.png)
-
 ## Getting Ready
 
 Before you start playing, use the following command in your terminal to make sure you have the required npm packages installed:
@@ -18,17 +16,19 @@ Before you start playing, use the following command in your terminal to make sur
 npm install readline readline-sync keypress chalk chalk-animation gradient-string
 ```
 
-If any of these packages are missing, you can install them using the following command in your terminal:
+## Try it yourself
 
-## How to Play
-
-Simply start **Turbo Typing** by executing `node app` in your terminal.
+Simply start **Turbo Typing** by executing `node app` in your terminal. Please make sure to maximize your terminal window before starting the app.
 
 Can you climb to the top of the highscore board and become the ultimate typing champion? There's only one way to find out - happy typing! 🚀
 
+## Preview
+
+![Screenshot](./screenshot_turbotyping.png)
+
 ## Credits
 
-Special thanks to these amazing npm packages for their contributions:
+**Turbo Typing** was created 2024 by Hannah Rein. Many thanks to these amazing npm packages for their contributions:
 
 - [chalk](https://www.npmjs.com/package/chalk)
 - [chalk-animation](https://www.npmjs.com/package/chalk-animation)
