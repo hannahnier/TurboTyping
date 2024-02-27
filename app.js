@@ -101,21 +101,30 @@ function checkHighscore() {
   fetchHighscore();
   if (champions[0] === playerNew) {
     console.log(
-      col.b,
-      `\u2728\u2728 Congratulations, ${playerNew.name}! You are the new winner! \u2728\u2728`,
-      col.res
+      gradient(
+        "orange",
+        "hotpink"
+      )(
+        `\u2728\u2728 Congratulations, ${playerNew.name}! You are the new winner! \u2728\u2728`
+      )
     );
   } else if (champions[1] === playerNew) {
     console.log(
-      col.b,
-      `\u2728 Congratulations, ${playerNew.name}! You made it to second place! \u2728`,
-      col.res
+      gradient(
+        "orange",
+        "hotpink"
+      )(
+        `\u2728 Congratulations, ${playerNew.name}! You made it to second place! \u2728`
+      )
     );
   } else if (champions[2] === playerNew) {
     console.log(
-      col.b,
-      `\u2728 Congratulations, ${playerNew.name}! You made it to the podium. \u2728`,
-      col.res
+      gradient(
+        "orange",
+        "hotpink"
+      )(
+        `\u2728 Congratulations, ${playerNew.name}! You made it to the podium. \u2728`
+      )
     );
   } else {
     console.log(
@@ -181,14 +190,19 @@ class Game {
 
   fetchRandomText() {
     let textArray = [
-      "Hunt and peck (two-fingered typing), also known as Eagle Finger, is a common form of typing in which the typist presses each key individually.",
-      "Instead of relying on the memorized position of keys, the typist must find each key by sight.",
-      "Use of this method may also prevent the typist from being able to see what has been typed without glancing away from the keys.",
-      "There are many idiosyncratic typing styles in between novice-style 'hunt and peck' and touch typing.",
-      "Words per minute (WPM) is a measure of typing speed, commonly used in recruitment.",
-      "For the purposes of WPM measurement a word is standardized to five characters or keystrokes.",
-      "The benefits of a standardized measurement of input speed are that it enables comparison across language and hardware boundaries.",
-    ]; // source of all text snippets: wikipedia.org
+      // "A touch typist does not need to move the sight between the keyboard (that is obscured with fingers and may be poorly lit) and other areas that require attention.",
+      // "One study examining 30 subjects, of varying different styles and expertise, has found minimal difference in typing speed between touch typists and self-taught hybrid typists.",
+      // "A touch typist starts by placing their fingers on the 'start position' in the middle row and knows which finger to move and how much to move it for reaching any required key.",
+      "Typing speed generally improves with practice. While practicing, it is important to ensure that there are no weak keys.",
+      "Typing speed is typically determined by how slow these weak keys are typed rather than how fast the remaining keys are typed.",
+      "For example, many hunt-and-peck typists have the keyboard layout memorized and are able to type while focusing their gaze on the screen.",
+      "A Microsoft survey suggested that many managers expect employees to be able to type at a minimum of 50 WPM.",
+      "Original layouts for the first few mechanical typewriters were in alphabetical order (ABCDE etc.)",
+      "Speeds average around 30-40 WPM (words per minute), while a speed of 60-80 WPM is the approximate speed to keep up with one's thoughts.",
+      // "Touch typing helps improve posture and reduce neck pain by keeping one's eyes focused on the display and avoiding a constant need to glance at the keyboard.",
+      "Many hunt-and-peck typists have the keyboard layout memorized and are able to type while focusing their gaze on the screen.",
+      // source of all quotes: wikipedia.org
+    ];
     let randomIndex = Math.floor(Math.random() * textArray.length);
     return textArray[randomIndex];
   }
@@ -201,13 +215,13 @@ class Game {
     playerNew = new Player(playerName, 0);
 
     // replace this text later with the real textSample:
-    textSample = "Some very short example text";
-    // textSample = this.fetchRandomText();
-    // remark: code works only for one-liners so far. could be extended two multiple-line text snippets though (comparing textSample.length to process.stdout.columns)
+    // textSample = "Some very short example text";
+    textSample = this.fetchRandomText();
+    // remark: code works only for one-liners so far. could be extended two multiple-line text snippets though (via comparing textSample.length to process.stdout.columns)
 
     console.clear();
     console.log(`${col.y}[Esc]${col.res} Return to Menu`);
-    console.log(col.b, `\n${textSample}\n`, col.res);
+    console.log(col.b, `\n\n${textSample}\n\n`, col.res);
     console.log(
       "Ready to type the above text? Once you start typing, the clock will be ticking!\n"
     );
@@ -283,17 +297,26 @@ class Game {
         // print the speed to the console:
         console.clear();
         console.log(
-          `\nDone! Your average typing speed is: ${chalk.bgMagenta(
-            wordsPerMinute
-          )} words per minute.\n`
+          gradient(
+            "orange",
+            "hotpink"
+          )(`\nDone! Average speed is being calculated.....`)
         );
 
-        // set the players score, display highscore and menu-return-instruction:
-        playerNew.wpm = wordsPerMinute;
-        scores.push(playerNew);
-        checkHighscore();
-        displayHighscore();
-        goBackToMenu();
+        setTimeout(() => {
+          console.clear();
+          console.log(
+            `\nYour average typing speed is: ${chalk.bgMagenta(
+              wordsPerMinute
+            )} words per minute.\n`
+          );
+          // set the players score, display highscore and menu-return-instruction:
+          playerNew.wpm = wordsPerMinute;
+          scores.push(playerNew);
+          checkHighscore();
+          displayHighscore();
+          goBackToMenu();
+        }, 3500);
       }
     });
   }
@@ -311,17 +334,17 @@ class Player {
 //////////////// Run the Programm ///////////////////
 
 console.clear();
-chalkAnimation.karaoke(introTemplate, 1);
+chalkAnimation.karaoke(introTemplate, 0.5);
 
 setTimeout(() => {
   console.clear();
   console.log(gradient("orange", "hotpink")(introTemplate));
-}, 2900);
+}, 6000);
 
 setTimeout(() => {
   console.clear();
   startProgramm();
-}, 4600); // after 4 seconds, the menu appears
+}, 8000); // after 4 seconds, the menu appears
 
 // for debugging use only:
 // startProgramm();
