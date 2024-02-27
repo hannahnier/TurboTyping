@@ -18,7 +18,7 @@ npm install readline readline-sync keypress chalk chalk-animation gradient-strin
 
 ## Try it yourself
 
-Simply start **Turbo Typing** by executing `node app` (careful: not nodemon) in your terminal. Please make sure to maximize your terminal window before starting the app.
+Simply start **Turbo Typing** by executing `node app` in your terminal. Important: Please make sure to maximize your terminal window before starting the app!
 
 Can you climb to the top of the highscore board and become the ultimate typing champion? There's only one way to find out - happy typing! 🚀
 
