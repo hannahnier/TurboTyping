@@ -21,7 +21,7 @@ import { col } from "./data/colors.js";
 let scores = [
   { name: "Dummy1", wpm: 90 },
   { name: "Dummy2", wpm: 50 },
-  { name: "Dummy3", wpm: 30 },
+  { name: "Dummy3", wpm: 25 },
 ];
 
 let playerFirst;
@@ -190,16 +190,13 @@ class Game {
 
   fetchRandomText() {
     let textArray = [
-      // "A touch typist does not need to move the sight between the keyboard (that is obscured with fingers and may be poorly lit) and other areas that require attention.",
-      // "One study examining 30 subjects, of varying different styles and expertise, has found minimal difference in typing speed between touch typists and self-taught hybrid typists.",
-      // "A touch typist starts by placing their fingers on the 'start position' in the middle row and knows which finger to move and how much to move it for reaching any required key.",
+      "A touch typist does not need to move the sight between the keyboard (that is obscured with fingers and may be poorly lit) and other areas that require attention.",
       "Typing speed generally improves with practice. While practicing, it is important to ensure that there are no weak keys.",
       "Typing speed is typically determined by how slow these weak keys are typed rather than how fast the remaining keys are typed.",
       "For example, many hunt-and-peck typists have the keyboard layout memorized and are able to type while focusing their gaze on the screen.",
       "A Microsoft survey suggested that many managers expect employees to be able to type at a minimum of 50 WPM.",
       "Original layouts for the first few mechanical typewriters were in alphabetical order (ABCDE etc.)",
       "Speeds average around 30-40 WPM (words per minute), while a speed of 60-80 WPM is the approximate speed to keep up with one's thoughts.",
-      // "Touch typing helps improve posture and reduce neck pain by keeping one's eyes focused on the display and avoiding a constant need to glance at the keyboard.",
       "Many hunt-and-peck typists have the keyboard layout memorized and are able to type while focusing their gaze on the screen.",
       // source of all quotes: wikipedia.org
     ];
@@ -215,7 +212,7 @@ class Game {
     playerNew = new Player(playerName, 0);
 
     // replace this text later with the real textSample:
-    // textSample = "Some very short example text";
+    // textSample = "Some very short example text.";
     textSample = this.fetchRandomText();
     // remark: code works only for one-liners so far. could be extended two multiple-line text snippets though (via comparing textSample.length to process.stdout.columns)
 
@@ -316,7 +313,7 @@ class Game {
           checkHighscore();
           displayHighscore();
           goBackToMenu();
-        }, 3500);
+        }, 3600);
       }
     });
   }
@@ -334,17 +331,17 @@ class Player {
 //////////////// Run the Programm ///////////////////
 
 console.clear();
-chalkAnimation.karaoke(introTemplate, 0.5);
+chalkAnimation.karaoke(introTemplate, 0.4);
 
 setTimeout(() => {
   console.clear();
   console.log(gradient("orange", "hotpink")(introTemplate));
-}, 6000);
+}, 7000);
 
 setTimeout(() => {
   console.clear();
   startProgramm();
-}, 8000); // after 4 seconds, the menu appears
+}, 9000); // after 9 seconds, the menu appears
 
 // for debugging use only:
 // startProgramm();
