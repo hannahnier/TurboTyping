@@ -35,7 +35,7 @@ export const outroTemplate = `
 0    |_| \\__,_|_|  |_.__/ \\___/             0
 0       _____            _                  0
 0      |_   _|   _ _ __ (_)_ __   __ _      0
-0        | || | | | '_ \\| | '_ \\ / _' |     0
+0        | || | | | '_ \\| |  '_ \\ / _' |     0
 0        | || |_| | |_) | | | | | (_| |     0
 0        |_| \\__, | .__/|_|_| |_|\\__, |     0
 0            |___/|_|            |___/      0  
@@ -50,8 +50,7 @@ export const mainMenuTemplate =
   chalk.bold(`_____________________________________________________
 |                                                   |
 |                                                   |
-|                    \u23F1  ${col.y} Menu${col.res}  \u23F1                    |
-|                 \u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1                 |
+|                      ${col.y} Menu${col.res}                        |
 |                                                   |
 |                                                   |
 |             \t   ${col.r}[${col.w} N ${col.r}] New Game${col.res}  \t            |
@@ -60,8 +59,7 @@ export const mainMenuTemplate =
 |                                                   |
 |             \t   ${col.b}[${col.w} Q ${col.b}] Quit${col.res}\t\t            |
 |                                                   |
-|                                                   |
-|     \u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1\u25E1    |`) +
+|                                                   |`) +
   `
 |                                                   |
 |     Insert the letter of your choice and press    |
