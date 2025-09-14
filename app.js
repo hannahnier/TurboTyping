@@ -332,17 +332,12 @@ class Player {
 //////////////// Run the Programm ///////////////////
 
 console.clear();
-chalkAnimation.karaoke(introTemplate, 0.4);
-
-setTimeout(() => {
-  console.clear();
-  console.log(gradient("orange", "hotpink")(introTemplate));
-}, 7000);
+const animation = chalkAnimation.karaoke(introTemplate, 0.7);
 
 setTimeout(() => {
   console.clear();
   startProgramm();
-}, 9000); // after 9 seconds, the menu appears
+}, 5000); // after 5 seconds, the menu appears
 
 // for debugging use only:
 // startProgramm();
